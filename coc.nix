@@ -1,4 +1,4 @@
-{ stdenv, writeTextFile }:
+{ writeTextFile }:
 
 let 
   file = "coc-settings.json";

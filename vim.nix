@@ -116,6 +116,8 @@ let
             \"govet"
           \],
         \}
+        highlight ALEError ctermbg=darkred cterm=underline 
+        highlight ALEWarning ctermbg=darkyellow cterm=underline
 
         " Go settings.
         " Turn off gopls (coc.nvim already running)
@@ -139,7 +141,7 @@ let
         let g:go_highlight_variable_assignments = 1
         let g:go_highlight_diagnostic_errors = 0
         let g:go_highlight_diagnostic_warnings = 0
-      '';
+     '';
     };
   };
 in

@@ -1,6 +1,17 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
+  username = "mule";
+  home-directory = if pkgs.stdenv.isDarwin then
+      "/Users/${username}"
+    else
+      "/home/${username}";
+
   my_firefox = with pkgs; if stdenv.isDarwin then
       (import ./firefox-darwin.nix) {
         inherit stdenv;
@@ -28,7 +39,7 @@ let
         fetchurl = builtins.fetchurl;
       }
     else
-      discord;
+      pkgs.discord;
 
   docker-desktop = with pkgs; (import ./docker-desktop-darwin.nix) {
     inherit stdenv;
@@ -44,11 +55,8 @@ let
     inherit vimPlugins;
     isDarwin = stdenv.isDarwin;
   });
-
-  coc = with pkgs; import ./coc.nix {
-    inherit stdenv;
-    inherit writeTextFile;
-  };
+  coc = with pkgs; import ./coc.nix { inherit writeTextFile; };
+  initgo = with pkgs; import ./initgo.nix { inherit writeShellScript; };
 
   darwin-packages = with pkgs; if stdenv.isDarwin then
     [
@@ -63,6 +71,8 @@ let
     awscli2
     bitwarden-cli
     browsh
+    delve
+    direnv
     discord
     docker
     exa
@@ -72,20 +82,23 @@ let
   ] ++ darwin-packages;
 in { 
   home = {
-    username = "mule";
-    homeDirectory = "/Users/mule";
+    inherit username;
+    homeDirectory = home-directory;
     stateVersion = "22.05";
 
-    sessionVariables = {
+    sessionVariables = rec {
       EDITOR = "vim";
       LANG = "en_US.UTF-8";
       NIXPKGS_ALLOW_UNFREE = "1";
     };
 
     shellAliases = {
-      hm = "home-manager -f $HOME/develop/env/home.nix";
-      lx = "exa";
-      vi = "vim"; # For butter fingers
+      dira = "direnv allow .";
+      hm   = "home-manager -f $HOME/develop/env/home.nix";
+      l    = "exa -1al";
+      ls   = "exa --group-directories-first";
+      vi   = "vim"; # For butter fingers
+      initgo = "sh ${initgo}";
     };
 
     # Creates ~/.vim/coc-settings.json symlink
@@ -99,6 +112,10 @@ in {
     inherit htop;
     inherit git;
 
+    direnv = {
+      enable = true;
+    };
+
     zsh = {
       enable = true;
       enableCompletion = true;
@@ -107,6 +124,9 @@ in {
         enable = true;
         theme = "amuse";
       };
+      initExtra = ''
+        eval "$(direnv hook zsh)"
+      '';
    };
 
     gpg = {
