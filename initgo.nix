@@ -1,19 +1,27 @@
 { writeShellScript }: writeShellScript "initgo.sh" ''
-    set -e
-    if [ -z "$1" ]; then echo "Must provide a package name."; exit 1; fi
+set -e
+if [ -z "$1" ]; then echo "Must provide a package name."; exit 1; fi
 
-    cat > default.nix <<EOF
-        { pkgs ? import <nixpkgs> {} }:
+cat > default.nix <<EOF
+{ pkgs ? import <nixpkgs> {} }:
 
-        pkgs.buildGoModule {
-          name = "$1";
-          version = "1.0.0";
+let
+  hash = null;
+in pkgs.buildGoModule {
+  name = "$1";
+  version = "1.0.0";
 
-          src = pkgs.lib.cleanSource ./.;
+  src = pkgs.lib.cleanSource ./.;
 
-          vendorSha256 = null;
-        }
-    EOF
+  runVend = false;
+  proxyVendor = true;
+  vendorSha256 = hash;
 
-    echo "use nix" >> .envrc
+  # Temporary fix for not being able to debug via Delve in vim-go
+  # This just makes the -trimpath flag disappear from GOFLAGS
+  allowGoReference = true;
+}
+EOF
+
+echo "use nix" >> .envrc
 ''

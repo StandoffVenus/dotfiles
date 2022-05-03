@@ -53,6 +53,7 @@ let
   vim = with pkgs; (import ./vim.nix {
     inherit vim_configurable;
     inherit vimPlugins;
+    inherit home-directory;
     isDarwin = stdenv.isDarwin;
   });
   coc = with pkgs; import ./coc.nix { inherit writeTextFile; };

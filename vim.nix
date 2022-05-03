@@ -1,4 +1,4 @@
-{ vim_configurable, vimPlugins, isDarwin, ... }:
+{ vim_configurable, vimPlugins, isDarwin, home-directory, ... }:
 
 let
   vim = (vim_configurable.override {
@@ -141,6 +141,8 @@ let
         let g:go_highlight_variable_assignments = 1
         let g:go_highlight_diagnostic_errors = 0
         let g:go_highlight_diagnostic_warnings = 0
+
+        let g:go_bin_path="${home-directory}/.vim/vim-go/bin"
      '';
     };
   };
