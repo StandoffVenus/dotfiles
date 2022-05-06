@@ -11,6 +11,7 @@ let
         start = [
           ale
           coc-nvim
+          coc-rls
           vim-go
           vim-airline
           vim-airline-themes
@@ -106,6 +107,11 @@ let
             \"trim_whitespace",
             \"remove_trailing_lines"
           \],
+          \"rust": [
+              \"rustfmt",
+              \"trim_whitespace",
+              \"remove_trailing_lines"
+          \],
         \}
         let g:ale_linters = {
           \"go": [
@@ -114,6 +120,9 @@ let
             \"gopls",
             \"gobuild",
             \"govet"
+          \],
+          \"rust": [
+            \"analyzer"
           \],
         \}
         highlight ALEError ctermbg=darkred cterm=underline 

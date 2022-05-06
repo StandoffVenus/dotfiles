@@ -48,14 +48,16 @@ let
     fetchurl = builtins.fetchurl;
   };
 
-  htop = (import ./htop.nix { inherit config; });
-  git = import ./git.nix;
   vim = with pkgs; (import ./vim.nix {
     inherit vim_configurable;
     inherit vimPlugins;
     inherit home-directory;
     isDarwin = stdenv.isDarwin;
   });
+
+  htop = (import ./htop.nix { inherit config; });
+  git = import ./git.nix;
+  zsh = with pkgs; import ./zsh.nix { inherit fetchFromGitHub; };
   coc = with pkgs; import ./coc.nix { inherit writeTextFile; };
   initgo = with pkgs; import ./initgo.nix { inherit writeShellScript; };
 
@@ -64,6 +66,7 @@ let
       iterm2
       rectangle
       docker-desktop
+      libiconv
     ]
   else
     [];
@@ -79,6 +82,7 @@ let
     exa
     gopls
     nodejs
+    rustup
     vim
   ] ++ darwin-packages;
 in { 
@@ -91,6 +95,7 @@ in {
       EDITOR = "vim";
       LANG = "en_US.UTF-8";
       NIXPKGS_ALLOW_UNFREE = "1";
+      LIBRARY_PATH = if pkgs.stdenv.isDarwin then "${pkgs.libiconv}/lib" else "";
     };
 
     shellAliases = {
@@ -112,23 +117,11 @@ in {
     home-manager.enable = true;
     inherit htop;
     inherit git;
+    inherit zsh;
 
     direnv = {
       enable = true;
     };
-
-    zsh = {
-      enable = true;
-      enableCompletion = true;
-      enableSyntaxHighlighting = true;
-      oh-my-zsh = {
-        enable = true;
-        theme = "amuse";
-      };
-      initExtra = ''
-        eval "$(direnv hook zsh)"
-      '';
-   };
 
     gpg = {
       enable = true;

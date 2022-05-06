@@ -7,7 +7,8 @@ let
       "coc.source.file.enable": true,
       "coc.preferences.hoverTarget": "float",
       "coc.preferences.formatOnSaveFiletypes": [
-        "go"
+        "go",
+        "rust"
       ],
       "languageserver": {
         "golang": {
