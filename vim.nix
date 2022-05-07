@@ -126,7 +126,7 @@ let
           \],
         \}
         highlight ALEError ctermbg=darkred cterm=underline 
-        highlight ALEWarning ctermbg=darkyellow cterm=underline
+        highlight ALEWarning ctermbg=brown cterm=underline
 
         " Go settings.
         " Turn off gopls (coc.nvim already running)
