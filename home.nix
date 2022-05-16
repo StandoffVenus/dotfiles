@@ -6,11 +6,15 @@
 }:
 
 let
+  unstable-pkgs = import <nixpkgs-unstable> { inherit config; }; 
+
   username = "mule";
   home-directory = if pkgs.stdenv.isDarwin then
       "/Users/${username}"
     else
       "/home/${username}";
+
+  current-directory = builtins.toString ./.;
 
   my_firefox = with pkgs; if stdenv.isDarwin then
       (import ./firefox-darwin.nix) {
@@ -55,11 +59,10 @@ let
     isDarwin = stdenv.isDarwin;
   });
 
+  coc = with pkgs; import ./coc.nix {  inherit writeTextFile; };
   htop = (import ./htop.nix { inherit config; });
   git = import ./git.nix;
   zsh = with pkgs; import ./zsh.nix { inherit fetchFromGitHub; };
-  coc = with pkgs; import ./coc.nix { inherit writeTextFile; };
-  initgo = with pkgs; import ./initgo.nix { inherit writeShellScript; };
 
   darwin-packages = with pkgs; if stdenv.isDarwin then
     [
@@ -80,7 +83,7 @@ let
     discord
     docker
     exa
-    gopls
+    unstable-pkgs.gopls
     nodejs
     rustup
     vim
@@ -100,11 +103,10 @@ in {
 
     shellAliases = {
       dira = "direnv allow .";
-      hm   = "home-manager -f $HOME/develop/env/home.nix";
+      hm   = "home-manager -f ${current-directory}/home.nix";
       l    = "exa -1al";
       ls   = "exa --group-directories-first";
       vi   = "vim"; # For butter fingers
-      initgo = "sh ${initgo}";
     };
 
     # Creates ~/.vim/coc-settings.json symlink

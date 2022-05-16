@@ -27,7 +27,7 @@ let
       "suggest.noselect": true,
       "suggest.minTriggerInputLength": 1,
       "suggest.enablePreview": false,
-      "suggest.fixInsertedWord": true,
+      "suggest.fixInsertedWord": true
     }
   '';
 in writeTextFile {

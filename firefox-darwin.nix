@@ -1,9 +1,9 @@
 { stdenv, fetchurl, undmg }:
 
 let
-  appVersion = "99.0.1";
-  file = "Firefox%20${appVersion}.dmg";
-  release = "https://ftp.mozilla.org/pub/firefox/releases/99.0.1/mac/en-US/${file}";
+  appVersion = "100.0.0";
+  release = "https://download.mozilla.org/?product=firefox-latest&os=osx&lang=en-US";
+  hash = "0414dsw0pgyik6lfd151al5nsrsh7dvp3bkqygxxn4cpj2b3pyi5";
 in stdenv.mkDerivation rec {
   pname = "Firefox";
   version = "${appVersion}";
@@ -13,9 +13,9 @@ in stdenv.mkDerivation rec {
   phases = [ "unpackPhase" "installPhase" ];
 
   src = fetchurl {
-    name = "firefox-${version}.dmg";
+    name = "Firefox.dmg";
     url = "${release}";
-    sha256 = "be6d89efe9af77a9fb2989d9918f70c1721a8193d208e8e8593e4e50c16813af";
+    sha256 = hash;
   };
 
   installPhase = ''
