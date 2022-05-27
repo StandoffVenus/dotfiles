@@ -83,6 +83,7 @@ let
     discord
     docker
     exa
+    jq
     unstable-pkgs.gopls
     nodejs
     rustup
