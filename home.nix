@@ -88,10 +88,12 @@ let
     discord
     docker
     exa
+    gitui
     jq
     unstable-pkgs.gopls
     nodejs
     rustup
+    spotify-tui
     vim
   ] ++ darwin-packages;
 in { 
@@ -109,8 +111,9 @@ in {
 
     shellAliases = {
       dira = "direnv allow .";
-      goinit = "sh ${go-init}/bin/cp-shell";
+      gohome = "cd ${current-directory}";
       hm   = "home-manager -f ${current-directory}/home.nix";
+      initgo = "sh ${go-init}/bin/cp-shell";
       l    = "exa -1al";
       ls   = "exa --group-directories-first";
       vi   = "vim"; # For butter fingers
