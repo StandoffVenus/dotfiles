@@ -15,6 +15,11 @@ let
       "/home/${username}";
 
   current-directory = builtins.toString ./.;
+  go-init = import ./cp-shell.nix {
+    writeShellScriptBin = pkgs.writeShellScriptBin;
+    shell-nix = ./go-shell.nix;
+    envrc = ./minimal.envrc;
+  };
 
   my_firefox = with pkgs; if stdenv.isDarwin then
       (import ./firefox-darwin.nix) {
@@ -104,6 +109,7 @@ in {
 
     shellAliases = {
       dira = "direnv allow .";
+      goinit = "sh ${go-init}/bin/cp-shell";
       hm   = "home-manager -f ${current-directory}/home.nix";
       l    = "exa -1al";
       ls   = "exa --group-directories-first";
