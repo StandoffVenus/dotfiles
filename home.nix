@@ -6,8 +6,6 @@
 }:
 
 let
-  unstable-pkgs = import <nixpkgs-unstable> { inherit config; }; 
-
   username = "mule";
   home-directory = if pkgs.stdenv.isDarwin then
       "/Users/${username}"
@@ -90,13 +88,13 @@ let
     exa
     gitui
     jq
-    unstable-pkgs.gopls
+    gopls
     nodejs
     rustup
     spotify-tui
     vim
   ] ++ darwin-packages;
-in { 
+in {
   home = {
     inherit username;
     homeDirectory = home-directory;
