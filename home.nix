@@ -80,13 +80,11 @@ let
   packages = with pkgs; [
     awscli2
     bitwarden-cli
-    browsh
     delve
     direnv
     discord
     docker
     exa
-    gitui
     jq
     gopls
     nodejs

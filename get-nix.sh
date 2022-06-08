@@ -2,11 +2,16 @@
 
 set -e
 LOCATION=https://nixos.org/nix/install
-NIX_DARWIN=https://github.com/LnL7/nix-darwin/archive/master.tar.gz
 
-NIX_EXISTS=0
+NIX_CHANNEL_PREFIX=https://nixos.org/channels
+NIX_CHANNEL_VERSION=22.05
+NIX_CHANNEL_STABLE=${NIX_CHANNEL_PREFIX}/nixpkgs-${NIX_CHANNEL_VERSION}
+if [[ `uname` == "Darwin" ]]; then
+  NIX_CHANNEL_STABLE=${NIX_CHANNEL_STABLE}-darwin
+fi
 
 # Check if the directory exists
+NIX_EXISTS=0
 if [ -d "/nix" ]; then
     # See if the directory is empty if it exists 
     if [ ! -z "$(ls -A /nix)" ]; then
@@ -28,11 +33,11 @@ else
     echo "Looks like Nix is already installed; won't try to install again."
 fi
 
-# It's okay to reinstall nix-darwin since Nix modules
-# should be idempotent
-if [[ `uname` == "Darwin" ]]; then
-    echo "Looks like you're on Darwin (Mac) - installing nix-darwin for you!"
-    nix-build "${NIX_DARWIN}" -A installer
-    ./result/bin/darwin-installer
-    rm result
-fi
+addNixChannel() {
+	echo "Adding Nix channel | $2 -> $1"
+	nix-channel --add $1 $2
+}
+addNixChannel "${NIX_CHANNEL_STABLE}" nixpkgs
+
+echo "Updating Nix channels..."
+nix-channel --update

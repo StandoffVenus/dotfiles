@@ -2,7 +2,7 @@
 
 let
   release = "https://download.mozilla.org/?product=firefox-latest&os=osx&lang=en-US";
-  hash = "0414dsw0pgyik6lfd151al5nsrsh7dvp3bkqygxxn4cpj2b3pyi5";
+  hash = "1w35ph0kmv7mvm2cg693h56cfpc89gba226acjcblbr94ji7m03y";
 in stdenv.mkDerivation rec {
   pname = "Firefox";
   version = "latest";

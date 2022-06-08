@@ -22,7 +22,7 @@ in mkDerivation rec {
   src = fetchurl {
     name = "docker.dmg";
     url = "${release}";
-    sha256 = "0gz7k126rjlhsl1kfnrmdnik6kjdq84zx33np60hmh9h5imflnnf";
+    sha256 = "0c0y9c6lgi6xhn8nyz2pm01451yl9aiqr2q8n67zpav88sbccnjm";
   };
 
   installPhase = ''
