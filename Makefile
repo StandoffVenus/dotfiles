@@ -1,5 +1,7 @@
 ALLOW_BROKEN=0
 
+all: configure install
+
 configure:
 	sh ./get-nix.sh
 	sh ./get-home-manager.sh
