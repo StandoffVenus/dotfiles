@@ -3,6 +3,9 @@
   userName = "Liam Mueller";
   userEmail = "liam.mueller315@gmail.com";
   extraConfig = {
+    core = {
+      editor = "codium --wait";
+    };
     pull = {
       rebase = false;
     };

@@ -55,14 +55,6 @@ let
     fetchurl = builtins.fetchurl;
   };
 
-  vim = with pkgs; (import ./vim.nix {
-    inherit vim_configurable;
-    inherit vimPlugins;
-    inherit home-directory;
-    isDarwin = stdenv.isDarwin;
-  });
-
-  coc = with pkgs; import ./coc.nix {  inherit writeTextFile; };
   htop = (import ./htop.nix { inherit config; });
   git = import ./git.nix;
   zsh = with pkgs; import ./zsh.nix { inherit fetchFromGitHub; };
@@ -90,7 +82,6 @@ let
     nodejs
     rustup
     spotify-tui
-    vim
   ] ++ darwin-packages;
 in {
   home = {
@@ -99,24 +90,23 @@ in {
     stateVersion = "22.05";
 
     sessionVariables = rec {
-      EDITOR = "vim";
+      EDITOR = "code";
       LANG = "en_US.UTF-8";
       NIXPKGS_ALLOW_UNFREE = "1";
       LIBRARY_PATH = if pkgs.stdenv.isDarwin then "${pkgs.libiconv}/lib" else "";
     };
 
     shellAliases = {
+      code = "codium";
       dira = "direnv allow .";
       gohome = "cd ${current-directory}";
       hm   = "home-manager -f ${current-directory}/home.nix";
+      hm_rm = "hm remove-generations";
       initgo = "sh ${go-init}/bin/cp-shell";
       l    = "exa -1al";
       ls   = "exa --group-directories-first";
-      vi   = "vim"; # For butter fingers
     };
 
-    # Creates ~/.vim/coc-settings.json symlink
-    file.".vim/coc-settings.json".source = config.lib.file.mkOutOfStoreSymlink coc;
     file."Applications/home-manager".source = let
       apps = pkgs.buildEnv {
         name = "home-manager-applications";
@@ -156,6 +146,11 @@ in {
           isDefault = true;
         };
       };
+    };
+
+    vscode = {
+      enable = true;
+      package = pkgs.vscodium;
     };
   };
 }
