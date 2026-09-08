@@ -54,6 +54,21 @@
             programs = {
               home-manager.enable = true;
 
+              ssh = {
+                enable = true;
+                matchBlocks = {
+                  github-standoffvenus = {
+                    hostname     = "github.com";
+                    user         = "git";
+                    port         = 22;
+                    identityFile = "${home}/.ssh/github_standoffvenus_ed25519";
+                  };
+                };
+
+                # Stops warning from appearing
+                enableDefaultConfig = false;
+              };
+
               bash = {
                 enable = true;
                 shellAliases = {
@@ -88,10 +103,18 @@
 
                 settings = {
                   init.defaultBranch = "main";
+
                   user = {
                     name  = "standoffvenus";
                     email = "liam.mueller315@gmail.com";
                   };
+
+                  protocol = {
+                    ssh.allow   = "always";
+                    http.allow  = "never";
+                    https.allow = "never";
+                    git.allow   = "never";
+                  }; 
                 };
               };
             };
