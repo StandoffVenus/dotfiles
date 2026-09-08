@@ -1,0 +1,9 @@
+# By default (for safety and my own fumbling) we ignore everything.
+# We can only then intentionally track what configs we want to.
+*
+!*/
+
+!.gitignore
+
+!home-manager/**
+home-manager/**/result
