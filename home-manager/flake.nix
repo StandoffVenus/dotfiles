@@ -1,16 +1,14 @@
 {
   inputs = {
-    nixpkgs.url          = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs.url          = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Pinned before commit 359646d, which requires lib.types.json
-    # (not present in nixpkgs release-25.11's lib).
-    nixcord.url = "github:4evy/nixcord/e6fd912d20acd25efd24f76514db8459a57c55dd";
+    nixcord.url = "github:4evy/nixcord";
   };
 
   outputs = inputs @ {
@@ -36,18 +34,12 @@
           config.allowUnfree = true;
           overlays = [
             (import ./overlays/claude-code.nix inputs)
-            (import ./overlays/discord.nix inputs)
           ];
         };
 
         modules = [
           ({ config, pkgs, ... }: {
-            nixpkgs.config = {
-              allowUnfree = true;
-              permittedInsecurePackages = [
-                "electron-39.8.10"
-              ];
-            };
+            nixpkgs.config.allowUnfree = true;
 
             imports = [ inputs.nixcord.homeModules.nixcord ];
 
@@ -56,12 +48,12 @@
 
               ssh = {
                 enable = true;
-                matchBlocks = {
+                settings = {
                   github-standoffvenus = {
-                    hostname     = "github.com";
-                    user         = "git";
-                    port         = 22;
-                    identityFile = "${home}/.ssh/github_standoffvenus_ed25519";
+                    HostName     = "github.com";
+                    User         = "git";
+                    Port         = 22;
+                    IdentityFile = "${home}/.ssh/github_standoffvenus_ed25519";
                   };
                 };
 
@@ -81,7 +73,7 @@
                   '';
 
                   hm_switch = ''
-                    nix run home-manager/release-25.11 -- \
+                    nix run home-manager/release-26.05 -- \
                       switch \
                         --flake "${homeManagerDir}#${username}"
                   '';
