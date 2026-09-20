@@ -11,9 +11,6 @@
     let
       hostname = "kaiser_nixos";
     in {
-      # Rebuild with:
-      #   sudo nixos-rebuild switch --flake ~/.config/nixos#${hostname}
-      #
       # `system` is intentionally omitted; hardware-configuration.nix sets
       # nixpkgs.hostPlatform, which serves the same purpose.
       nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {

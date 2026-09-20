@@ -65,26 +65,50 @@
 
               bash = {
                 enable = true;
-                shellAliases = {
-                  nixos_edit = ''
-                    "''${EDITOR:-vim}" "${nixosDir}/flake.nix"
-                  '';
 
-                  nixos_switch = ''
-                    sudo nixos-rebuild switch \
-                      --flake "${nixosDir}#${hostname}"
-                  '';
+                # Use `nixos boot`, not `nixos switch`, for release upgrades:
+                # switch mutates the running system and can fail halfway.
+                # 26.05 moved dbus to dbus-broker, which cannot be swapped
+                # under a live session.
+                initExtra = ''
+                  nixos() {
+                    case "''${1-}" in
+                      edit)
+                        "''${EDITOR:-vim}" "${nixosDir}/flake.nix"
+                        ;;
+                      # Neither activates nor touches the bootloader.
+                      build|dry-build|eval|repl|list-generations)
+                        nixos-rebuild "$@" --flake "${nixosDir}#${hostname}"
+                        ;;
+                      "")
+                        echo "usage: nixos <edit|switch|boot|test|build|...>" >&2
+                        return 2
+                        ;;
+                      *)
+                        sudo nixos-rebuild "$@" --flake "${nixosDir}#${hostname}"
+                        ;;
+                    esac
+                  }
 
-                  hm_edit = ''
-                    "''${EDITOR:-vim}" "${homeManagerDir}/flake.nix"
-                  '';
-
-                  hm_switch = ''
-                    nix run home-manager/release-26.05 -- \
-                      switch \
-                        --flake "${homeManagerDir}#${username}"
-                  '';
-                };
+                  hm() {
+                    case "''${1-}" in
+                      edit)
+                        "''${EDITOR:-vim}" "${homeManagerDir}/flake.nix"
+                        ;;
+                      # Only these accept --flake.
+                      build|switch|news|instantiate|option)
+                        home-manager "$@" --flake "${homeManagerDir}#${username}"
+                        ;;
+                      "")
+                        echo "usage: hm <edit|switch|build|news|generations|...>" >&2
+                        return 2
+                        ;;
+                      *)
+                        home-manager "$@"
+                        ;;
+                    esac
+                  }
+                '';
               };
 
               nixcord = {
