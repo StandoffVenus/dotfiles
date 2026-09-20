@@ -24,9 +24,11 @@
       os       = "linux";
       system   = "${arch}-${os}";
       username = "kaiser";
+      hostname = "kaiser_nixos";
       home     = "/home/${username}";
 
       homeManagerDir = "${home}/.config/home-manager";
+      nixosDir       = "${home}/.config/nixos";
     in {
       homeConfigurations.${username} = home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
@@ -64,8 +66,13 @@
               bash = {
                 enable = true;
                 shellAliases = {
-                  nix_rebuild = ''
-                    sudo nixos-rebuild switch
+                  nixos_edit = ''
+                    "''${EDITOR:-vim}" "${nixosDir}/flake.nix"
+                  '';
+
+                  nixos_switch = ''
+                    sudo nixos-rebuild switch \
+                      --flake "${nixosDir}#${hostname}"
                   '';
 
                   hm_edit = ''
