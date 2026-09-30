@@ -35,6 +35,7 @@
           config.allowUnfree = true;
           overlays = [
             (import ./overlays/claude-code.nix inputs)
+            (import ./overlays/proton-ge9.nix)
             (import ./overlays/claude-desktop.nix)
           ];
         };
@@ -84,6 +85,11 @@
                 steam
               ];
             };
+
+            # GE-Proton9-27 alongside it, for Fallout: New Vegas. See
+            # overlays/proton-ge9.nix for why an older base is wanted.
+            xdg.dataFile."Steam/compatibilitytools.d/GE-Proton9-27".source =
+              pkgs.proton-ge9.steamcompattool;
 
             # See modules/url-handlers.nix for why these need declaring.
             xdg.urlHandlers = {
