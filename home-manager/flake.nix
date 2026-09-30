@@ -28,6 +28,11 @@
       home     = "/home/${username}";
 
       nixosDir = "${home}/.config/nixos";
+
+      # Reached via the /home mount rather than /mnt, because MO2 and the
+      # prefix are addressed by that path.
+      fnvCompatData = "${home}/Games/SteamLibrary/steamapps/compatdata/22380";
+      mo2Dir        = "${fnvCompatData}/pfx/drive_c/Modding/MO2";
     in {
       homeConfigurations.${username} = home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
@@ -44,7 +49,12 @@
           (import ./shared.nix { inherit inputs username home; })
           ./modules/url-handlers.nix
 
-          ({ pkgs, ... }: {
+          ({ pkgs, ... }: let
+            # Steam and steam-run each get a private /tmp by default, which
+            # hides wine's server socket between them: a Nexus link then
+            # starts a second MO2 instead of reaching the running one.
+            steam = pkgs.steam.override { privateTmp = false; };
+          in {
             programs.bash = {
               # Use `nixos boot`, not `nixos switch`, for release upgrades:
               # switch mutates the running system and can fail halfway.
@@ -93,6 +103,24 @@
 
             # See modules/url-handlers.nix for why these need declaring.
             xdg.urlHandlers = {
+              # Nexus "Mod Manager Download" links, handled by MO2's own
+              # nxmhandler.exe. SteamTinkerLaunch used to do this, but it ran
+              # MO2 under bare wine with no Steam environment, which the Steam
+              # build of FNV cannot launch from. Proton needs steam-run on
+              # NixOS, and the two STEAM_COMPAT_* vars to find the game's
+              # prefix.
+              "mo2-nxm-handler.desktop" = {
+                schemes = [ "nxm" "nxm-protocol" ];
+                source  = pkgs.writeText "mo2-nxm-handler.desktop" ''
+                  [Desktop Entry]
+                  Type=Application
+                  Name=Mod Organizer 2 (Nexus links)
+                  Exec=${steam.run}/bin/steam-run env STEAM_COMPAT_CLIENT_INSTALL_PATH=${home}/.local/share/Steam STEAM_COMPAT_DATA_PATH=${fnvCompatData} ${pkgs.proton-ge9.steamcompattool}/proton run ${mo2Dir}/nxmhandler.exe %u
+                  MimeType=x-scheme-handler/nxm;x-scheme-handler/nxm-protocol;
+                  NoDisplay=true
+                '';
+              };
+
               # Sign-in returns to the app through a claude:// link.
               "com.anthropic.Claude.desktop" = {
                 schemes = [ "claude" ];
