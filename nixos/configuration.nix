@@ -98,7 +98,7 @@ in {
 
   security.rtkit.enable = true;
 
-  # YubiKey (FIDO U2F) as an alternative to password for login and sudo.
+  # YubiKey (FIDO U2F) as an alternative to password for sudo and polkit.
   # control = "sufficient": touching the key grants access immediately;
   # if it's absent/unregistered, PAM falls through to the password prompt.
   # Enroll a key with: pamu2fcfg -o pam://kaiser_nixos -i pam://kaiser_nixos
@@ -114,11 +114,17 @@ in {
     };
   };
 
+  # Not for login or GDM (which substacks login, as does the lock screen):
+  # "sufficient" returns before pam_gnome_keyring sees a password, which
+  # leaves the login keyring locked, and with it every app storing secrets
+  # through libsecret (Brave, Claude Desktop). Typing the password there
+  # unlocks it; the key stays a shortcut where no keyring is involved.
+  # u2f.enable turns u2fAuth on for every service, hence the explicit false.
   security.pam.services = {
     sudo.u2fAuth = true;
-    login.u2fAuth = true;
-    gdm-password.u2fAuth = true;
     polkit-1.u2fAuth = true;
+    login.u2fAuth = false;
+    gdm-password.u2fAuth = false;
   };
 
   security.pam.loginLimits = [

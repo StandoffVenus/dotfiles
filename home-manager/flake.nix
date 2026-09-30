@@ -35,6 +35,7 @@
           config.allowUnfree = true;
           overlays = [
             (import ./overlays/claude-code.nix inputs)
+            (import ./overlays/claude-desktop.nix)
           ];
         };
 
@@ -73,6 +74,7 @@
               stateVersion = "25.11";
 
               packages = with pkgs; [
+                claude-desktop
                 easyeffects
                 guitarix
                 heroic
