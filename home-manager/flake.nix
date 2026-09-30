@@ -41,6 +41,7 @@
 
         modules = [
           (import ./shared.nix { inherit inputs username home; })
+          ./modules/url-handlers.nix
 
           ({ pkgs, ... }: {
             programs.bash = {
@@ -82,6 +83,15 @@
                 prismlauncher
                 steam
               ];
+            };
+
+            # See modules/url-handlers.nix for why these need declaring.
+            xdg.urlHandlers = {
+              # Sign-in returns to the app through a claude:// link.
+              "com.anthropic.Claude.desktop" = {
+                schemes = [ "claude" ];
+                source  = "${pkgs.claude-desktop}/share/applications/com.anthropic.Claude.desktop";
+              };
             };
           })
         ];
