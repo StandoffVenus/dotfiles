@@ -48,9 +48,32 @@ in {
     "flakes"
   ];
 
+  # Weekly sweep of the store, so /nix does not creep back up to filling the
+  # disk. The timer runs as root and so only expires root-owned profiles:
+  # home-manager generations are left alone, and `nix-clean` (defined in
+  # ~/.config/home-manager) is still the way to expire those and to force a
+  # collection on demand. 30d is deliberately lax; it keeps a month of
+  # rollbacks, and nix-clean --all is there when the disk is actually tight.
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+    randomizedDelaySec = "30min";
+  };
+
+  # Hard-links identical files in the store. Runs separately from gc because
+  # doing both at once is slow and they have nothing to do with each other.
+  nix.optimise = {
+    automatic = true;
+    dates = [ "weekly" ];
+  };
+
   boot.kernelPackages = pkgs.linuxPackages_6_18;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  # Without a cap the boot menu keeps listing generations that gc has already
+  # deleted from the store, which makes those entries unbootable.
+  boot.loader.systemd-boot.configurationLimit = 5;
 
   hardware.graphics = {
     enable = true;
