@@ -99,6 +99,18 @@
                 heroic
                 qpwgraph
                 prismlauncher
+                # Audits/repairs the FNV + MO2 + SteamTinkerLaunch setup, whose
+                # invariants Steam updates, the vanilla launcher and Proton
+                # prefix rebuilds each quietly undo. See fnv-doctor.sh.
+                (pkgs.writeShellApplication {
+                  name = "fnv-doctor";
+                  runtimeInputs = with pkgs; [ coreutils gnugrep gnused procps ];
+                  # Reference copies of the NVSE plugin INIs. These are separate
+                  # optional downloads on Nexus, absent from the main mod
+                  # archives, and cannot be re-fetched without a login.
+                  text = "FNV_INI_DIR=${./fnv}\n"
+                    + builtins.readFile ./fnv-doctor.sh;
+                })
                 steam
               ];
             };
