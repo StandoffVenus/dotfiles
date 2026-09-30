@@ -55,6 +55,8 @@ let
     fetchurl = builtins.fetchurl;
   };
 
+  claude-desktop = pkgs.callPackage ./claude-desktop-darwin.nix { };
+
   htop = (import ./htop.nix { inherit config; });
   git = import ./git.nix;
   zsh = with pkgs; import ./zsh.nix { inherit fetchFromGitHub; };
@@ -64,6 +66,7 @@ let
       iterm2
       rectangle
       docker-desktop
+      claude-desktop
       libiconv
     ]
   else
