@@ -28,9 +28,10 @@
       home     = "/home/${username}";
 
       nixosDir = "${home}/.config/nixos";
+      fnvDir   = "/mnt/games/SteamLibrary/steamapps/common/Fallout New Vegas";
 
-      # Reached via the /home mount rather than /mnt, because MO2 and the
-      # prefix are addressed by that path.
+      # Same filesystem as fnvDir, reached via the /home mount rather than
+      # /mnt, because MO2 and the prefix are addressed by that path.
       fnvCompatData = "${home}/Games/SteamLibrary/steamapps/compatdata/22380";
       mo2Dir        = "${fnvCompatData}/pfx/drive_c/Modding/MO2";
     in {
@@ -79,6 +80,12 @@
                       ;;
                   esac
                 }
+
+                # Re-applies the FNV 4GB patch, which Steam undoes whenever
+                # it updates or verifies the game files.
+                fnv4gb() (
+                  cd "${fnvDir}" && ${steam.run}/bin/steam-run ./FalloutNVPatcher
+                )
               '';
             };
 
