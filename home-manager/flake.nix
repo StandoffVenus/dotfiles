@@ -93,6 +93,9 @@
               stateVersion = "25.11";
 
               packages = with pkgs; [
+                # Unlocking with the YubiKey also needs the polkit policy
+                # that ~/.config/nixos installs system-wide.
+                bitwarden-desktop
                 claude-desktop
                 easyeffects
                 guitarix
@@ -138,6 +141,12 @@
                   MimeType=x-scheme-handler/nxm;x-scheme-handler/nxm-protocol;
                   NoDisplay=true
                 '';
+              };
+
+              # SSO and Duo sign-ins return through a bitwarden:// link.
+              "bitwarden.desktop" = {
+                schemes = [ "bitwarden" ];
+                source  = "${pkgs.bitwarden-desktop}/share/applications/bitwarden.desktop";
               };
 
               # Sign-in returns to the app through a claude:// link.

@@ -213,6 +213,16 @@ in {
     vim
     wget
     pam_u2f
+
+    # Bitwarden's "Unlock with system authentication" asks polkit, which
+    # only reads actions from the system profile; the app itself comes from
+    # home-manager. Its own setup would write this to /usr/share, which the
+    # nixpkgs build disables. With polkit-1.u2fAuth above, a key touch
+    # unlocks the vault, falling back to the password.
+    (runCommand "bitwarden-polkit-policy" { } ''
+      install -Dm644 -t $out/share/polkit-1/actions \
+        ${bitwarden-desktop}/share/polkit-1/actions/com.bitwarden.Bitwarden.policy
+    '')
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
