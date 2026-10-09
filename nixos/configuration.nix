@@ -137,17 +137,52 @@ in {
     };
   };
 
-  # Not for login or GDM (which substacks login, as does the lock screen):
-  # "sufficient" returns before pam_gnome_keyring sees a password, which
-  # leaves the login keyring locked, and with it every app storing secrets
-  # through libsecret (Brave, Claude Desktop). Typing the password there
-  # unlocks it; the key stays a shortcut where no keyring is involved.
-  # u2f.enable turns u2fAuth on for every service, hence the explicit false.
+  # Not for the first login of a session: "sufficient" returns before
+  # pam_gnome_keyring sees a password, which leaves the login keyring
+  # locked, and with it every app storing secrets through libsecret (Brave,
+  # Claude Desktop). Typing the password there unlocks it; the key stays a
+  # shortcut where no keyring is involved. u2f.enable turns u2fAuth on for
+  # every service, hence the explicit false for login (and the TTYs).
   security.pam.services = {
     sudo.u2fAuth = true;
     polkit-1.u2fAuth = true;
     login.u2fAuth = false;
-    gdm-password.u2fAuth = false;
+
+    # GDM serves both the first login and the lock screen, through this
+    # service. Its stack is just a substack of login, so u2fAuth has no
+    # effect here and the rules are written out. The key is only offered
+    # once the user already has a graphical session, i.e. at the lock
+    # screen, where the keyring is already unlocked. With the key plugged
+    # in, the password prompt appears only after the touch times out.
+    gdm-password.rules.auth =
+      let
+        loginOrder = config.security.pam.services.gdm-password.rules.auth.login.order;
+
+        hasGraphicalSession = pkgs.writeShellScript "has-graphical-session" ''
+          sessions=$(${pkgs.systemd}/bin/loginctl show-user "$PAM_USER" \
+            -p Sessions --value 2>/dev/null) || exit 1
+          for s in $sessions; do
+            case $(${pkgs.systemd}/bin/loginctl show-session "$s" -p Type --value) in
+              wayland|x11) exit 0 ;;
+            esac
+          done
+          exit 1
+        '';
+      in {
+        # On failure, jumps over the u2f rule straight to the password.
+        u2f-if-unlocking = {
+          order      = loginOrder - 20;
+          control    = "[success=ignore default=1]";
+          modulePath = "${config.security.pam.package}/lib/security/pam_exec.so";
+          args       = [ "quiet" "${hasGraphicalSession}" ];
+        };
+        u2f = {
+          order      = loginOrder - 10;
+          control    = "sufficient";
+          modulePath = "${pkgs.pam_u2f}/lib/security/pam_u2f.so";
+          inherit (config.security.pam.u2f) settings;
+        };
+      };
   };
 
   security.pam.loginLimits = [
