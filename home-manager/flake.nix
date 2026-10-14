@@ -67,12 +67,22 @@
                     edit)
                       "''${EDITOR:-vim}" "${nixosDir}/flake.nix"
                       ;;
+                    # Bumps flake.lock; name inputs to bump only those.
+                    update)
+                      shift
+                      nix flake update "$@" --flake "${nixosDir}"
+                      ;;
+                    # Defaults to switch; pass `boot` when the bump
+                    # crosses a release (see above).
+                    upgrade)
+                      nixos update && nixos "''${2:-switch}"
+                      ;;
                     # Neither activates nor touches the bootloader.
                     build|dry-build|eval|repl|list-generations)
                       nixos-rebuild "$@" --flake "${nixosDir}#${hostname}"
                       ;;
                     "")
-                      echo "usage: nixos <edit|switch|boot|test|build|...>" >&2
+                      echo "usage: nixos <edit|update|upgrade|switch|boot|test|build|...>" >&2
                       return 2
                       ;;
                     *)
