@@ -42,12 +42,20 @@ in {
             edit)
               "''${EDITOR:-vim}" "${homeManagerDir}/flake.nix"
               ;;
+            # Bumps flake.lock; name inputs to bump only those.
+            update)
+              shift
+              nix flake update "$@" --flake "${homeManagerDir}"
+              ;;
+            upgrade)
+              hm update && hm switch
+              ;;
             # Only these accept --flake.
             build|switch|news|instantiate|option)
               home-manager "$@" --flake "${homeManagerDir}#${username}"
               ;;
             "")
-              echo "usage: hm <edit|switch|build|news|generations|...>" >&2
+              echo "usage: hm <edit|update|upgrade|switch|build|news|generations|...>" >&2
               return 2
               ;;
             *)
