@@ -2,7 +2,7 @@
 #
 # Machine-specific flakes import this and add their own packages, shell
 # functions and stateVersion. Options declared here use merging types
-# (home.packages is a list, programs.bash.initExtra is lines), so a
+# (home.packages is a list, shell init options are lines), so a
 # machine can extend them without overriding what is set below.
 { inputs, username, home }:
 
@@ -10,6 +10,36 @@
 
 let
   homeManagerDir = "${home}/.config/home-manager";
+
+  # Valid in both bash and zsh.
+  hmFunction = ''
+    hm() {
+      case "''${1-}" in
+        edit)
+          "''${EDITOR:-vim}" "${homeManagerDir}/flake.nix"
+          ;;
+        # Bumps flake.lock; name inputs to bump only those.
+        update)
+          shift
+          nix flake update "$@" --flake "${homeManagerDir}"
+          ;;
+        upgrade)
+          hm update && hm switch
+          ;;
+        # Only these accept --flake.
+        build|switch|news|instantiate|option)
+          home-manager "$@" --flake "${homeManagerDir}#${username}"
+          ;;
+        "")
+          echo "usage: hm <edit|update|upgrade|switch|build|news|generations|...>" >&2
+          return 2
+          ;;
+        *)
+          home-manager "$@"
+          ;;
+      esac
+    }
+  '';
 in {
   imports = [ inputs.nixcord.homeModules.nixcord ];
 
@@ -35,36 +65,11 @@ in {
 
     bash = {
       enable = true;
-
-      initExtra = ''
-        hm() {
-          case "''${1-}" in
-            edit)
-              "''${EDITOR:-vim}" "${homeManagerDir}/flake.nix"
-              ;;
-            # Bumps flake.lock; name inputs to bump only those.
-            update)
-              shift
-              nix flake update "$@" --flake "${homeManagerDir}"
-              ;;
-            upgrade)
-              hm update && hm switch
-              ;;
-            # Only these accept --flake.
-            build|switch|news|instantiate|option)
-              home-manager "$@" --flake "${homeManagerDir}#${username}"
-              ;;
-            "")
-              echo "usage: hm <edit|update|upgrade|switch|build|news|generations|...>" >&2
-              return 2
-              ;;
-            *)
-              home-manager "$@"
-              ;;
-          esac
-        }
-      '';
+      initExtra = hmFunction;
     };
+
+    # Only takes effect on machines that enable zsh.
+    zsh.initContent = hmFunction;
 
     nixcord = {
       enable = true;
