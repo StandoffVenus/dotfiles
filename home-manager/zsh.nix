@@ -1,25 +1,19 @@
 { fetchFromGitHub }:
 
-let
-  fetch = fetchFromGitHub;
-in {
+{
   enable = true;
   enableCompletion = true;
-  enableSyntaxHighlighting = true;
+  syntaxHighlighting.enable = true;
 
   oh-my-zsh = {
     enable = true;
     theme = "amuse";
   };
 
-  initExtra = ''
-    eval "$(direnv hook zsh)"
-  '';
-
   plugins = [
     {
       name = "rust";
-      src = fetch {
+      src = fetchFromGitHub {
         owner = "pkulev";
         repo = "zsh-rustup-completion";
         rev = "1.20.2";
