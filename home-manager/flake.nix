@@ -65,6 +65,13 @@
               runtimeInputs = with pkgs; [ coreutils findutils nix ];
               text = builtins.readFile ./scripts/nixos-clean.sh;
             };
+
+            # Likewise reached only through `nixos disk`.
+            nixosDisk = pkgs.writeShellApplication {
+              name = "nixos-disk";
+              runtimeInputs = with pkgs; [ coreutils gawk util-linux ];
+              text = builtins.readFile ./scripts/nixos-disk.sh;
+            };
           in {
             programs.bash = {
               # Use `nixos boot`, not `nixos switch`, for release upgrades:
@@ -94,12 +101,19 @@
                       shift
                       ${nixosClean}/bin/nixos-clean "$@"
                       ;;
+                    # Lists disks and how full they are. See
+                    # scripts/nixos-disk.sh; `nixos disk --help` lists
+                    # the subcommands.
+                    disk)
+                      shift
+                      ${nixosDisk}/bin/nixos-disk "$@"
+                      ;;
                     # Neither activates nor touches the bootloader.
                     build|dry-build|eval|repl|list-generations)
                       nixos-rebuild "$@" --flake "${nixosDir}#${hostname}"
                       ;;
                     "")
-                      echo "usage: nixos <edit|update|upgrade|clean|switch|boot|test|build|...>" >&2
+                      echo "usage: nixos <edit|update|upgrade|clean|disk|switch|boot|test|build|...>" >&2
                       return 2
                       ;;
                     *)
