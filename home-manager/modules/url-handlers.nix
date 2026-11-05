@@ -45,8 +45,14 @@ in {
       lib.nameValuePair "applications/${id}" { inherit (h) source; }
     ) cfg;
 
+    # GLib lists a scheme's handlers from mimeinfo.cache when the directory
+    # has one, so a stale cache hides entries added here and the portal
+    # finds no app even though the default is set.
     home.activation.urlHandlers = lib.hm.dag.entryAfter [ "linkGeneration" ]
-      (lib.concatStrings (lib.mapAttrsToList (id: h: ''
+      (''
+        run ${pkgs.desktop-file-utils}/bin/update-desktop-database \
+          ${lib.escapeShellArg "${config.xdg.dataHome}/applications"}
+      '' + lib.concatStrings (lib.mapAttrsToList (id: h: ''
         run ${pkgs.xdg-utils}/bin/xdg-mime default ${lib.escapeShellArg id} \
           ${lib.escapeShellArgs (map (s: "x-scheme-handler/${s}") h.schemes)}
       '') cfg));
