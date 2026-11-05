@@ -50,10 +50,10 @@ in {
 
   # Weekly sweep of the store, so /nix does not creep back up to filling the
   # disk. The timer runs as root and so only expires root-owned profiles:
-  # home-manager generations are left alone, and `nix-clean` (defined in
+  # home-manager generations are left alone, and `nixos clean` (defined in
   # ~/.config/home-manager) is still the way to expire those and to force a
   # collection on demand. 30d is deliberately lax; it keeps a month of
-  # rollbacks, and nix-clean --all is there when the disk is actually tight.
+  # rollbacks, and `nixos clean --all` is there when the disk is actually tight.
   nix.gc = {
     automatic = true;
     dates = "weekly";

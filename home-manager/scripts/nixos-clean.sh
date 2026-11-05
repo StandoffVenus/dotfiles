@@ -14,7 +14,7 @@ dry_run=0
 
 usage() {
   cat >&2 <<'USAGE'
-usage: nix-clean [--days N | --keep N | --all] [--optimise] [--dry-run]
+usage: nixos clean [--days N | --keep N | --all] [--optimise] [--dry-run]
 
   --days N    keep generations from the last N days (default: 14)
   --keep N    keep the N newest generations, however old they are
@@ -29,7 +29,7 @@ USAGE
 
 set_spec() {
   if [ -n "$spec_set" ]; then
-    echo "nix-clean: $1 conflicts with $spec_set" >&2
+    echo "nixos clean: $1 conflicts with $spec_set" >&2
     usage
   fi
   spec_set="$1"
@@ -38,7 +38,7 @@ set_spec() {
 
 want_count() {
   case "$1" in
-    "" | *[!0-9]*) echo "nix-clean: $2 needs a whole number, got '$1'" >&2; usage ;;
+    "" | *[!0-9]*) echo "nixos clean: $2 needs a whole number, got '$1'" >&2; usage ;;
   esac
 }
 
@@ -50,7 +50,7 @@ while [ $# -gt 0 ]; do
     --optimise|--optimize) optimise=1; shift ;;
     --dry-run|-n) dry_run=1; shift ;;
     -h|--help) usage ;;
-    *) echo "nix-clean: unknown argument: $1" >&2; usage ;;
+    *) echo "nixos clean: unknown argument: $1" >&2; usage ;;
   esac
 done
 

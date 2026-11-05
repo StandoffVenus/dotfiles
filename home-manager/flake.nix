@@ -58,6 +58,13 @@
             # hides wine's server socket between them: a Nexus link then
             # starts a second MO2 instead of reaching the running one.
             steam = pkgs.steam.override { privateTmp = false; };
+
+            # Kept off PATH; it is reached only through `nixos clean`.
+            nixosClean = pkgs.writeShellApplication {
+              name = "nixos-clean";
+              runtimeInputs = with pkgs; [ coreutils findutils nix ];
+              text = builtins.readFile ./scripts/nixos-clean.sh;
+            };
           in {
             programs.bash = {
               # Use `nixos boot`, not `nixos switch`, for release upgrades:
@@ -80,12 +87,19 @@
                     upgrade)
                       nixos update && nixos "''${2:-switch}"
                       ;;
+                    # Expires old generations and sweeps the store. See
+                    # scripts/nixos-clean.sh; `nixos clean --help` lists
+                    # the options.
+                    clean)
+                      shift
+                      ${nixosClean}/bin/nixos-clean "$@"
+                      ;;
                     # Neither activates nor touches the bootloader.
                     build|dry-build|eval|repl|list-generations)
                       nixos-rebuild "$@" --flake "${nixosDir}#${hostname}"
                       ;;
                     "")
-                      echo "usage: nixos <edit|update|upgrade|switch|boot|test|build|...>" >&2
+                      echo "usage: nixos <edit|update|upgrade|clean|switch|boot|test|build|...>" >&2
                       return 2
                       ;;
                     *)

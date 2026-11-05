@@ -110,14 +110,6 @@ in {
     packages = with pkgs; [
       brave
       claude-code
-
-      # `nix-clean`: expires old generations and sweeps the store. See
-      # scripts/nix-clean.sh; run `nix-clean --help` for the options.
-      (writeShellApplication {
-        name = "nix-clean";
-        runtimeInputs = [ coreutils findutils nix ];
-        text = builtins.readFile ./scripts/nix-clean.sh;
-      })
     ];
   };
 }
