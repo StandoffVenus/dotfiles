@@ -51,7 +51,6 @@
 
         modules = [
           (import ./shared.nix { inherit inputs username home; })
-          ./modules/desktop
 
           ({ pkgs, ... }: let
             # Steam and steam-run each get a private /tmp by default, which
