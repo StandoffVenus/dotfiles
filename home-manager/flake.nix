@@ -63,7 +63,7 @@
             nixosClean = pkgs.writeShellApplication {
               name = "nixos-clean";
               runtimeInputs = with pkgs; [ coreutils findutils nix ];
-              text = builtins.readFile ./scripts/nixos-clean.sh;
+              text = "prog=\"nixos clean\"\n" + builtins.readFile ./scripts/clean.sh;
             };
 
             # Likewise reached only through `nixos disk`.
@@ -95,7 +95,7 @@
                       nixos update && nixos "''${2:-switch}"
                       ;;
                     # Expires old generations and sweeps the store. See
-                    # scripts/nixos-clean.sh; `nixos clean --help` lists
+                    # scripts/clean.sh; `nixos clean --help` lists
                     # the options.
                     clean)
                       shift

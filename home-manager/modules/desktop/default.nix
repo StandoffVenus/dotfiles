@@ -2,10 +2,10 @@
 # environment is in use.
 #
 # Each environment keeps these settings in its own store (dconf for
-# GNOME, kcminputrc for Plasma), so switching desktops means changing
-# `desktop.environment` here and the desktopManager in ~/.config/nixos.
-# Home Manager runs standalone and cannot read the latter, so the two
-# must be kept in step by hand.
+# GNOME, kcminputrc for Plasma, the global defaults domain for macOS).
+# On NixOS, switching desktops means changing `desktop.environment` here
+# and the desktopManager in ~/.config/nixos. Home Manager runs standalone
+# and cannot read the latter, so the two must be kept in step by hand.
 { lib, ... }:
 
 {
@@ -13,11 +13,12 @@
     ./url-handlers.nix
     ./gnome.nix
     ./plasma.nix
+    ./macos.nix
   ];
 
   options.desktop = {
     environment = lib.mkOption {
-      type        = lib.types.enum [ "gnome" "plasma" ];
+      type        = lib.types.enum [ "gnome" "plasma" "macos" ];
       description = "The desktop environment the settings are written for.";
     };
 

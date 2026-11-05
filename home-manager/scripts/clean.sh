@@ -5,6 +5,10 @@
 # from a surviving generation.
 set -euo pipefail
 
+# Set by whatever wraps this script (`nixos clean`, `hm clean`), so the
+# messages name the command that was actually typed.
+: "${prog:=clean}"
+
 # A `nix-env --delete-generations` spec. "14d" keeps a fortnight, "+5" keeps
 # the five newest whatever their age, "old" keeps only the current one.
 spec=14d
@@ -13,8 +17,8 @@ optimise=0
 dry_run=0
 
 usage() {
-  cat >&2 <<'USAGE'
-usage: nixos clean [--days N | --keep N | --all] [--optimise] [--dry-run]
+  cat >&2 <<USAGE
+usage: $prog [--days N | --keep N | --all] [--optimise] [--dry-run]
 
   --days N    keep generations from the last N days (default: 14)
   --keep N    keep the N newest generations, however old they are
@@ -29,7 +33,7 @@ USAGE
 
 set_spec() {
   if [ -n "$spec_set" ]; then
-    echo "nixos clean: $1 conflicts with $spec_set" >&2
+    echo "$prog: $1 conflicts with $spec_set" >&2
     usage
   fi
   spec_set="$1"
@@ -38,7 +42,7 @@ set_spec() {
 
 want_count() {
   case "$1" in
-    "" | *[!0-9]*) echo "nixos clean: $2 needs a whole number, got '$1'" >&2; usage ;;
+    "" | *[!0-9]*) echo "$prog: $2 needs a whole number, got '$1'" >&2; usage ;;
   esac
 }
 
@@ -50,7 +54,7 @@ while [ $# -gt 0 ]; do
     --optimise|--optimize) optimise=1; shift ;;
     --dry-run|-n) dry_run=1; shift ;;
     -h|--help) usage ;;
-    *) echo "nixos clean: unknown argument: $1" >&2; usage ;;
+    *) echo "$prog: unknown argument: $1" >&2; usage ;;
   esac
 done
 
@@ -106,8 +110,11 @@ fi
 after=$(df --output=avail -B1 /nix | tail -1)
 echo "==> freed $(numfmt --to=iec --suffix=B "$(( after - before ))") ($(numfmt --to=iec --suffix=B "$after") now free on /nix)"
 
-cat <<'NOTE'
+# Only NixOS puts system generations in a boot menu.
+if [ -e /etc/NIXOS ]; then
+  cat <<'NOTE'
 
 If system generations went away, the boot menu still lists them. Run
 `nixos boot` (or `sudo nixos-rebuild boot --flake ...`) to regenerate it.
 NOTE
+fi
