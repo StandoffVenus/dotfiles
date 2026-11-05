@@ -54,7 +54,11 @@ let
     }
   '';
 in {
-  imports = [ inputs.nixcord.homeModules.nixcord ];
+  imports = [
+    inputs.nixcord.homeModules.nixcord
+    # Each machine sets desktop.environment, which has no default.
+    ./modules/desktop
+  ];
 
   nixpkgs.config.allowUnfree = true;
 
