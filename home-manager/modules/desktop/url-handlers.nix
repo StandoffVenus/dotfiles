@@ -1,4 +1,4 @@
-# URL scheme handlers that GNOME actually uses.
+# URL scheme handlers that the desktop actually uses.
 #
 # Browsers open custom-scheme links (nxm://, claude://, ...) through the
 # xdg-desktop-portal, a long-running service that misses new .desktop
@@ -13,9 +13,9 @@
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.xdg.urlHandlers;
+  cfg = config.desktop.urlHandlers;
 in {
-  options.xdg.urlHandlers = lib.mkOption {
+  options.desktop.urlHandlers = lib.mkOption {
     default = { };
     description = "Scheme handlers, keyed by desktop file ID.";
     example = lib.literalExpression ''

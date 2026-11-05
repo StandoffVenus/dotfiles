@@ -51,9 +51,9 @@
 
         modules = [
           (import ./shared.nix { inherit inputs username home; })
-          ./modules/url-handlers.nix
+          ./modules/desktop
 
-          ({ lib, pkgs, ... }: let
+          ({ pkgs, ... }: let
             # Steam and steam-run each get a private /tmp by default, which
             # hides wine's server socket between them: a Nexus link then
             # starts a second MO2 instead of reaching the running one.
@@ -131,11 +131,13 @@
               ];
             };
 
-            # GNOME's defaults are a 500 ms delay before a held key repeats.
-            dconf.settings."org/gnome/desktop/peripherals/keyboard" = {
-              repeat          = true;
-              delay           = lib.hm.gvariant.mkUint32 heldKeyDelay;
-              repeat-interval = lib.hm.gvariant.mkUint32 keyRepeatInterval;
+            # Must match the desktopManager in ~/.config/nixos.
+            desktop.environment = "gnome";
+
+            # Desktops default to about 500 ms before a held key repeats.
+            desktop.keyboard = {
+              repeatDelay    = heldKeyDelay;
+              repeatInterval = keyRepeatInterval;
             };
 
             # GE-Proton9-27 alongside it, for Fallout: New Vegas. See
@@ -143,8 +145,8 @@
             xdg.dataFile."Steam/compatibilitytools.d/GE-Proton9-27".source =
               pkgs.proton-ge9.steamcompattool;
 
-            # See modules/url-handlers.nix for why these need declaring.
-            xdg.urlHandlers = {
+            # See modules/desktop/url-handlers.nix for why these need declaring.
+            desktop.urlHandlers = {
               # Nexus "Mod Manager Download" links, handled by MO2's own
               # nxmhandler.exe. SteamTinkerLaunch used to do this, but it ran
               # MO2 under bare wine with no Steam environment, which the Steam
