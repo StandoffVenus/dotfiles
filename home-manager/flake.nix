@@ -44,7 +44,6 @@
 
         modules = [
           (import ./shared.nix { inherit inputs username home; })
-          ./modules/desktop
           (import ./home.nix { inherit inputs; })
         ];
       };
