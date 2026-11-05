@@ -222,6 +222,18 @@ in {
     pulse.enable = true;
   };
 
+  # A switch restarts every user unit whose files changed, and restarting
+  # PipeWire drops each app's streams, EasyEffects' and guitarix's links,
+  # and the devices GNOME lists. Leave the running stack alone instead;
+  # updates to it take effect from the next login. The sockets need it
+  # too, as stopping one also stops the service that requires it.
+  systemd.user.services = lib.genAttrs
+    [ "pipewire" "pipewire-pulse" "wireplumber" ]
+    (_: { restartIfChanged = false; });
+  systemd.user.sockets = lib.genAttrs
+    [ "pipewire" "pipewire-pulse" ]
+    (_: { unitConfig.X-RestartIfChanged = false; });
+
   services.libinput = {
     enable = true;
     mouse = {
