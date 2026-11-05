@@ -34,6 +34,9 @@
       # /mnt, because MO2 and the prefix are addressed by that path.
       fnvCompatData = "${home}/Games/SteamLibrary/steamapps/compatdata/22380";
       mo2Dir        = "${fnvCompatData}/pfx/drive_c/Modding/MO2";
+
+      heldKeyDelay      = 150;
+      keyRepeatInterval = 25;
     in {
       homeConfigurations.${username} = home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
@@ -50,7 +53,7 @@
           (import ./shared.nix { inherit inputs username home; })
           ./modules/url-handlers.nix
 
-          ({ pkgs, ... }: let
+          ({ lib, pkgs, ... }: let
             # Steam and steam-run each get a private /tmp by default, which
             # hides wine's server socket between them: a Nexus link then
             # starts a second MO2 instead of reaching the running one.
@@ -126,6 +129,13 @@
                 })
                 steam
               ];
+            };
+
+            # GNOME's defaults are a 500 ms delay before a held key repeats.
+            dconf.settings."org/gnome/desktop/peripherals/keyboard" = {
+              repeat          = true;
+              delay           = lib.hm.gvariant.mkUint32 heldKeyDelay;
+              repeat-interval = lib.hm.gvariant.mkUint32 keyRepeatInterval;
             };
 
             # GE-Proton9-27 alongside it, for Fallout: New Vegas. See
