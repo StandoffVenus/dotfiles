@@ -30,6 +30,7 @@ Afterwards, use `hm`:
 - `hm switch`: apply changes to the configuration
 - `hm update [input…]`: bump `flake.lock`
 - `hm upgrade`: both of the above
+- `hm clean`: expire old generations and free disk space (`hm clean --help`)
 - `hm edit`: open `flake.nix`
 
 Nix itself is updated by Determinate: `sudo determinate-nixd upgrade`.

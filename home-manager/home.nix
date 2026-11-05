@@ -65,6 +65,15 @@ in {
     copyApps.enable = true;
   };
 
+  desktop.environment = "macos";
+
+  # Same feel as the Linux desktop. macOS rounds to 15 ms steps, so 25 ms
+  # between repeats becomes 15, its fastest.
+  desktop.keyboard = {
+    repeatDelay    = 150;
+    repeatInterval = 25;
+  };
+
   programs = {
     htop = import ./htop.nix { inherit config; };
     git.settings = import ./git.nix;

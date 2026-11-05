@@ -11,6 +11,13 @@
 let
   homeManagerDir = "${home}/.config/home-manager";
 
+  # Kept off PATH; it is reached only through `hm clean`.
+  hmClean = pkgs.writeShellApplication {
+    name = "hm-clean";
+    runtimeInputs = with pkgs; [ coreutils findutils nix ];
+    text = "prog=\"hm clean\"\n" + builtins.readFile ./scripts/clean.sh;
+  };
+
   # Valid in both bash and zsh.
   hmFunction = ''
     hm() {
@@ -26,12 +33,18 @@ let
         upgrade)
           hm update && hm switch
           ;;
+        # Expires old generations and sweeps the store. See
+        # scripts/clean.sh; `hm clean --help` lists the options.
+        clean)
+          shift
+          ${hmClean}/bin/hm-clean "$@"
+          ;;
         # Only these accept --flake.
         build|switch|news|instantiate|option)
           home-manager "$@" --flake "${homeManagerDir}#${username}"
           ;;
         "")
-          echo "usage: hm <edit|update|upgrade|switch|build|news|generations|...>" >&2
+          echo "usage: hm <edit|update|upgrade|clean|switch|build|news|generations|...>" >&2
           return 2
           ;;
         *)
